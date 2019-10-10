@@ -12,7 +12,6 @@
 
 #include "get_next_line.h"
 #include "libft.h"
-#include <stdio.h>
 
 static t_list	*choose_fd(int fd, t_list **fd_list)
 {
