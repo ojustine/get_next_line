@@ -51,7 +51,7 @@ static int		handle_saved_line(char **line, t_list **curr)
 	return (1);
 }
 
-static int		free_fully_read_fd(t_list **fd_list, size_t curr_fd)
+static int		free_fully_read_fd(t_list **fd_list, size_t curr_fd, char **l)
 {
 	t_list *this;
 	t_list *prev;
@@ -71,6 +71,8 @@ static int		free_fully_read_fd(t_list **fd_list, size_t curr_fd)
 	prev->next = this->next;
 	(this->content) ? free(this->content) : (0);
 	free(this);
+	if (*l)
+		free(*l);
 	this = NULL;
 	return (0);
 }
@@ -100,6 +102,6 @@ int				get_next_line(const int fd, char **line)
 			break ;
 	}
 	if (reads == 0 && (!(curr->content) || ((char*)curr->content)[0] == '\0'))
-		return (free_fully_read_fd(&fd_list, curr->content_size));
+		return (free_fully_read_fd(&fd_list, curr->content_size, line));
 	return (handle_saved_line(line, &curr));
 }
