@@ -19,12 +19,20 @@
 # include <stdlib.h>
 # include <string.h>
 
-int	get_next_line(const int fd, char **line);
-
 # if (BUFF_SIZE < 1)
 #  error "BUFF_SIZE must be strictly positive"
 # endif
 # if (BUFF_SIZE > SIZE_MAX)
 #  warning "BUFF_SIZE current value may cause a stack overflow"
 # endif
+
+typedef struct			s_fd_list
+{
+	int					fd;
+	char				*line;
+	struct s_fd_list	*next;
+}						t_fd_list;
+
+int	get_next_line(int fd, char **line);
+
 #endif
