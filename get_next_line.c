@@ -15,7 +15,7 @@
 
 static t_fd_list	*choose_fd(int fd, t_fd_list **list)
 {
-	t_fd_list *new_node;
+	register t_fd_list *new_node;
 
 	new_node = *list;
 	while (new_node)
@@ -52,8 +52,8 @@ static int		handle_saved_line(char **line, t_fd_list **node)
 
 static int		free_fully_read_fd(t_fd_list **list, int fd)
 {
-	t_fd_list *this;
-	t_fd_list *prev;
+	register t_fd_list *this;
+	register t_fd_list *prev;
 
 	this = *list;
 	prev = *list;
@@ -77,17 +77,18 @@ int				get_next_line(const int fd, char **line)
 {
 	static t_fd_list	*fd_list;
 	t_fd_list			*node;
-	char				buff[BUFF_SIZE + 1];
-	char				*tmp;
-	int					reads;
+	register char		*tmp;
+	register int		reads;
+	char		buff[BUFF_SIZE + 1];
 
-	if (fd < 0 || !line || read(fd, buff, 0) < 0
-	|| !(node = choose_fd(fd, &fd_list)))
+	if (fd < 0 || !line || !(node = choose_fd(fd, &fd_list)))
 		return (-1);
 	if (node->line && ft_strchr(node->line, '\n'))
 		return (handle_saved_line(line, &node));
 	while ((reads = read(fd, buff, BUFF_SIZE)) > 0)
 	{
+		if (reads < 0)
+			return (-1);
 		buff[reads] = '\0';
 		tmp = (node->line) ? ft_strjoin(node->line, buff) : ft_strdup(buff);
 		free(node->line);
