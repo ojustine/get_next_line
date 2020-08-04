@@ -13,7 +13,7 @@
 #include "get_next_line.h"
 #include "../libft/libft.h"
 
-static t_fd_list	*choose_fd(int fd, t_fd_list **list)
+static t_fd_list	*node_get(int fd, t_fd_list **list)
 {
 	register t_fd_list *new_node;
 
@@ -34,7 +34,7 @@ static t_fd_list	*choose_fd(int fd, t_fd_list **list)
 	return (new_node);
 }
 
-static int		handle_saved_line(char **line, t_fd_list **node)
+static int			handle_saved_line(char **line, t_fd_list **node)
 {
 	size_t			ret_len;
 	const char		*nl_ptr = ft_strchr((*node)->line, '\n');
@@ -50,7 +50,7 @@ static int		handle_saved_line(char **line, t_fd_list **node)
 	return (1);
 }
 
-static int		free_fully_read_fd(t_fd_list **list, int fd)
+static int			node_free(t_fd_list **list, int fd)
 {
 	register t_fd_list *this;
 	register t_fd_list *prev;
@@ -73,30 +73,28 @@ static int		free_fully_read_fd(t_fd_list **list, int fd)
 	return (0);
 }
 
-int				get_next_line(const int fd, char **line)
+int					get_next_line(const int fd, char **line)
 {
 	static t_fd_list	*fd_list;
 	t_fd_list			*node;
 	register char		*tmp;
 	register int		reads;
-	char		buff[BUFF_SIZE + 1];
+	char				buff[BUFF_SIZE + 1];
 
-	if (fd < 0 || !line || !(node = choose_fd(fd, &fd_list)))
+	if (fd < 0 || !line || !(node = node_get(fd, &fd_list)))
 		return (-1);
-	if (node->line && ft_strchr(node->line, '\n'))
-		return (handle_saved_line(line, &node));
-	while ((reads = read(fd, buff, BUFF_SIZE)) > 0)
-	{
-		if (reads < 0)
-			return (-1);
-		buff[reads] = '\0';
-		tmp = (node->line) ? ft_strjoin(node->line, buff) : ft_strdup(buff);
-		free(node->line);
-		node->line = tmp;
-		if (ft_strchr(buff, '\n'))
-			break ;
-	}
+	reads = 0;
+	if (!node->line || !ft_strchr(node->line, '\n'))
+		while ((reads = read(fd, buff, BUFF_SIZE)) > 0)
+		{
+			buff[reads] = '\0';
+			tmp = (node->line) ? ft_strjoin(node->line, buff) : ft_strdup(buff);
+			free(node->line);
+			node->line = tmp;
+			if (ft_strchr(buff, '\n'))
+				break ;
+		}
 	if (reads == 0 && !node->line)
-		return (free_fully_read_fd(&fd_list, node->fd));
+		return (node_free(&fd_list, node->fd));
 	return (handle_saved_line(line, &node));
 }
